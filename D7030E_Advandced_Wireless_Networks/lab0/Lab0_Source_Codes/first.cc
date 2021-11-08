@@ -13,7 +13,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
- 
+
+// Hello world
+
 #include "ns3/core-module.h"
 #include "ns3/network-module.h"
 #include "ns3/internet-module.h"
@@ -26,75 +28,70 @@
 // n0 -------------- n1
 //    point-to-point
 //
- 
+
 //define a namespace
 
 using namespace ns3;
 
-NS_LOG_COMPONENT_DEFINE ("FirstScriptExample");
+NS_LOG_COMPONENT_DEFINE("FirstScriptExample");
 
-int
-main (int argc, char *argv[])
+int main(int argc, char *argv[])
 {
-  CommandLine cmd (__FILE__);
-  cmd.Parse (argc, argv);
-  
+  CommandLine cmd(__FILE__);
+  cmd.Parse(argc, argv);
+
   //Take logs
-  
-  Time::SetResolution (Time::NS);
-  LogComponentEnable ("UdpEchoClientApplication", LOG_LEVEL_INFO);
-  LogComponentEnable ("UdpEchoServerApplication", LOG_LEVEL_INFO);
+
+  Time::SetResolution(Time::NS);
+  LogComponentEnable("UdpEchoClientApplication", LOG_LEVEL_INFO);
+  LogComponentEnable("UdpEchoServerApplication", LOG_LEVEL_INFO);
 
   //Take n number of Computers
-  
+
   NodeContainer nodes;
-  nodes.Create (2);
-  
+  nodes.Create(2);
+
   //Select protocol for communication
-  
+
   PointToPointHelper pointToPoint;
-  pointToPoint.SetDeviceAttribute ("DataRate", StringValue ("5Mbps"));
-  pointToPoint.SetChannelAttribute ("Delay", StringValue ("2ms"));
+  pointToPoint.SetDeviceAttribute("DataRate", StringValue("5Mbps"));
+  pointToPoint.SetChannelAttribute("Delay", StringValue("2ms"));
 
   //Install the protocol on computers
-  
-  NetDeviceContainer devices;
-  devices = pointToPoint.Install (nodes);
 
+  NetDeviceContainer devices;
+  devices = pointToPoint.Install(nodes);
 
   //Instructing to follow rules
   InternetStackHelper stack;
-  stack.Install (nodes);
-
+  stack.Install(nodes);
 
   //Assign IP address to communicate
   Ipv4AddressHelper address;
-  address.SetBase ("10.1.1.0", "255.255.255.0");
-  Ipv4InterfaceContainer interfaces = address.Assign (devices);
+  address.SetBase("10.1.1.0", "255.255.255.0");
+  Ipv4InterfaceContainer interfaces = address.Assign(devices);
 
   //Create a x type of server on port x
-  
-  UdpEchoServerHelper echoServer (9);
 
-  ApplicationContainer serverApps = echoServer.Install (nodes.Get (1));
-  serverApps.Start (Seconds (1.0));
-  serverApps.Stop (Seconds (10.0));
+  UdpEchoServerHelper echoServer(9);
+
+  ApplicationContainer serverApps = echoServer.Install(nodes.Get(1));
+  serverApps.Start(Seconds(1.0));
+  serverApps.Stop(Seconds(10.0));
 
   //Create x type of client and set its attributes
-  UdpEchoClientHelper echoClient (interfaces.GetAddress (1), 9);
-  echoClient.SetAttribute ("MaxPackets", UintegerValue (1));
-  echoClient.SetAttribute ("Interval", TimeValue (Seconds (1.0)));
-  echoClient.SetAttribute ("PacketSize", UintegerValue (1024));
-
+  UdpEchoClientHelper echoClient(interfaces.GetAddress(1), 9);
+  echoClient.SetAttribute("MaxPackets", UintegerValue(1));
+  echoClient.SetAttribute("Interval", TimeValue(Seconds(1.0)));
+  echoClient.SetAttribute("PacketSize", UintegerValue(1024));
 
   //Install the server then Start and Stop it
-  ApplicationContainer clientApps = echoClient.Install (nodes.Get (0));
-  clientApps.Start (Seconds (2.0));
-  clientApps.Stop (Seconds (10.0));
-
+  ApplicationContainer clientApps = echoClient.Install(nodes.Get(0));
+  clientApps.Start(Seconds(2.0));
+  clientApps.Stop(Seconds(10.0));
 
   //Run the simulation
-  Simulator::Run ();
-  Simulator::Destroy ();
+  Simulator::Run();
+  Simulator::Destroy();
   return 0;
 }
